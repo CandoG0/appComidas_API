@@ -46,20 +46,18 @@ $config = [
             ],
         ],
         'db' => $db,
-        // AGREGAR ESTO - urlManager para API
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'enableStrictParsing' => false, // Importante: mantener en false
+            'enableStrictParsing' => false,
             'rules' => [
-                // Rutas para la API
-                'GET locales' => 'local/index',
-                'GET locales/search' => 'local/search',
-                'GET locales/<id:\d+>' => 'local/view',
+                // Solo necesitas esta ruta
+                'GET local' => 'local/index',
 
-                // Mantener tus rutas existentes
-                '<controller:\w+>/<id:\d+>' => '<controller>/view',
-                '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+                // Para debugging
+                'GET local/test' => 'local/test',
+
+                // Mantener rutas por defecto
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             ],
         ],
