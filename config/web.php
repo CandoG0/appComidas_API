@@ -55,6 +55,8 @@ $config = [
                 // Para debugging
                 'GET local/test' => 'local/test',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                'platillos/local/<local_id:\d+>' => 'platillo/api-por-local',
+                'categorias' => 'categoria/api-todas',      
             ],
         ],
     ],

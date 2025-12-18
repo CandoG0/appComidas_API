@@ -122,4 +122,156 @@ class Platillo extends \yii\db\ActiveRecord
         return $this->hasMany(VentaDetalle::class, ['ved_fkpla_id' => 'pla_id']);
     }
 
+    /**
+     * Gets query for [[Archivo]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArchivo()
+    {
+        return $this->hasOne(Archivo::class, ['arc_id' => 'pla_fkarc_id']);
+    }
+
+    /**
+     * Gets query for [[Categoria]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoria()
+    {
+        return $this->hasOne(Categoria::class, ['cat_id' => 'pla_fkcat_id']);
+    }
+
+    /**
+     * Gets query for [[Local]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLocal()
+    {
+        return $this->hasOne(Local::class, ['loc_id' => 'pla_fkloc_id']);
+    }
+
+    /**
+     * Obtiene todos los ingredientes relacionados con este platillo
+     * @return \yii\db\ActiveQuery
+     */
+    public function getIngredientes()
+    {
+        return $this->hasMany(Ingrediente::class, ['ing_id' => 'pli_fking_id'])
+            ->viaTable('platillo_ingrediente', ['pli_fkpla_id' => 'pla_id']);
+    }
+
+    /**
+     * Formatea el precio para mostrar
+     * @return string
+     */
+    public function getPrecioFormateado()
+    {
+        return '$' . number_format($this->pla_precio, 2);
+    }
+
+    /**
+     * Verifica si el platillo está disponible (tiene stock)
+     * @return bool
+     */
+    public function getDisponible()
+    {
+        return $this->pla_stock > 0;
+    }
+
+    /**
+     * Obtiene la URL de la imagen del platillo
+     * @return string
+     */
+    public function getImagenUrl()
+    {
+        if ($this->archivo && $this->archivo->arc_ruta) {
+            // Si la ruta es relativa, prependemos la URL base
+            if (strpos($this->archivo->arc_ruta, 'http') === 0) {
+                return $this->archivo->arc_ruta;
+            }
+            return Yii::$app->request->baseUrl . $this->archivo->arc_ruta;
+        }
+
+        // Imagen por defecto
+        return Yii::$app->request->baseUrl . '/images/platillo-default.jpg';
+    }
+
+    /**
+     * Obtiene platillos por local
+     * @param int $localId
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getByLocal($localId)
+    {
+        return self::find()
+            ->where(['pla_fkloc_id' => $localId])
+            ->with(['categoria', 'local', 'archivo'])
+            ->all();
+    }
+
+    /**
+     * Obtiene platillos por categoría
+     * @param int $categoriaId
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getByCategoria($categoriaId)
+    {
+        return self::find()
+            ->where(['pla_fkcat_id' => $categoriaId])
+            ->with(['categoria', 'local', 'archivo'])
+            ->all();
+    }
+
+    /**
+     * Busca platillos por nombre o descripción
+     * @param string $query
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function buscar($query)
+    {
+        return self::find()
+            ->where(['like', 'pla_nombre', $query])
+            ->orWhere(['like', 'pla_descripcion', $query])
+            ->with(['categoria', 'local', 'archivo'])
+            ->all();
+    }
+
+    /**
+     * Obtiene platillos disponibles (con stock)
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getDisponibles()
+    {
+        return self::find()
+            ->where(['>', 'pla_stock', 0])
+            ->with(['categoria', 'local', 'archivo'])
+            ->all();
+    }
+
+    /**
+     * Reduce el stock del platillo
+     * @param int $cantidad
+     * @return bool
+     */
+    public function reducirStock($cantidad = 1)
+    {
+        if ($this->pla_stock >= $cantidad) {
+            $this->pla_stock -= $cantidad;
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Incrementa el stock del platillo
+     * @param int $cantidad
+     * @return bool
+     */
+    public function incrementarStock($cantidad = 1)
+    {
+        $this->pla_stock += $cantidad;
+        return $this->save();
+    }
 }
