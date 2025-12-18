@@ -4,7 +4,7 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
-use app\models\Local; // Si tienes el modelo
+use app\models\Local;
 
 class LocalController extends Controller
 {
@@ -24,7 +24,7 @@ class LocalController extends Controller
         // Formato JSON
         Yii::$app->response->format = Response::FORMAT_JSON;
         
-        // Obtener todos los locales directamente
+        // Obtener todos los locales
         $locales = Local::find()->all();
         
         // Convertir a array simple

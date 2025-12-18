@@ -51,13 +51,9 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
-                // Solo necesitas esta ruta
                 'GET local' => 'local/index',
-
                 // Para debugging
                 'GET local/test' => 'local/test',
-
-                // Mantener rutas por defecto
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             ],
         ],
